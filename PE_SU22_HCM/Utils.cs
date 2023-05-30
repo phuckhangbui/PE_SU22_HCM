@@ -1,6 +1,4 @@
-﻿using System.Text.RegularExpressions;
-
-namespace PE_SU22_HCM
+﻿namespace PE_SU22_HCM
 {
     public class Utils
     {
@@ -29,16 +27,27 @@ namespace PE_SU22_HCM
 
         public static bool CheckBranch(String txtName)
         {
-            if (Regex.IsMatch(txtName, @"^(?:\b[A-Z][\w]+\b\s*){2,}$"))
+            if (txtName.Length > 5)
             {
+                string[] words = txtName.Split(' ');
+                foreach (string word in words)
+                {
+                    if (string.IsNullOrEmpty(word)) continue;
+                    if (char.IsLower(word[0]))
+                    {
+                        errorMes.Add("Incorrect format");
+                        return false;
+                    }
+                }
+
                 return true;
+
             }
 
-            else
-            {
-                errorMes.Add("Incorrect format");
-                return false;
-            }
+
+
+            errorMes.Add("Incorrect format");
+            return false;
         }
         public static bool CheckDate(DateTime dtpDate)
         {

@@ -9,13 +9,20 @@ namespace PE_SU22_HCM
         List<BankAccount> _listAccounts;
         AccountTypeServices _accountTypeServices;
 
+
         public Management()
         {
             InitializeComponent();
             _accountTypeServices = new AccountTypeServices();
-            cbType.Items.AddRange(_accountTypeServices.GetAll().Select(p => p.TypeName).ToArray());
+            var listAcount = _accountTypeServices.GetAll();
+            cbType.DisplayMember = "typeName";
+            cbType.ValueMember = "typeId";
+            cbType.DataSource = listAcount;
+
+
             cbType.DropDownStyle = ComboBoxStyle.DropDownList;
 
+            resetState();
             ReloadList();
 
         }
@@ -48,7 +55,7 @@ namespace PE_SU22_HCM
             //Utils.resetErrorMes();
             txtID.ReadOnly = false;
             btnAdd.Enabled = true;
-            btnDelete.Enabled = false;
+            btnDelete.Enabled = true;
             btnUpdate.Enabled = false;
         }
 
@@ -94,13 +101,17 @@ namespace PE_SU22_HCM
                 {
                     if (Utils.CheckBranch(branch) && Utils.CheckDate(date))
                     {
-                        String typeId = _accountTypeServices.GetAll().FirstOrDefault(p => p.TypeName == typeName).TypeId;
+                        String typeId = cbType.SelectedValue.ToString();
                         account = new BankAccount(id, name, date, branch, typeId);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Wrong branch format or date format(must be between 2000 and 2022)!", "Thong bao", MessageBoxButtons.OK);
                     }
                 }
                 else
                 {
-                    MessageBox.Show("fail!", "Thong bao", MessageBoxButtons.OK);
+                    MessageBox.Show("All fields must not be null", "Thong bao", MessageBoxButtons.OK);
                 }
                 return account;
             }
@@ -124,7 +135,7 @@ namespace PE_SU22_HCM
                 bool flag = _bankAccountService.Create(account);
                 if (!flag)
                 {
-                    MessageBox.Show("fail!", "Thong bao", MessageBoxButtons.OK);
+                    MessageBox.Show("Create fail - That id is already exist in database!", "Thong bao", MessageBoxButtons.OK);
 
                 }
                 ReloadList();
@@ -139,9 +150,13 @@ namespace PE_SU22_HCM
             BankAccount account = _bankAccountService.GetAccount(id);
             if (account != null)
             {
-                _bankAccountService.Remove(account);
-                ReloadList();
-                resetState();
+                DialogResult result = MessageBox.Show("Are you sure you want to detele the account with id: " + id, "Thong bao", MessageBoxButtons.YesNo);
+                if (result == DialogResult.Yes)
+                {
+                    _bankAccountService.Remove(account);
+                    ReloadList();
+                    resetState();
+                }
             }
         }
 

@@ -14,7 +14,7 @@ namespace Services.Services
         public List<BankAccount> GetAccountByBranch(string branch)
         {
             List<BankAccount> list;
-            list = this.GetAll().Where(p => p.BranchName.Contains(branch)).ToList();
+            list = this.GetAll().Where(p => p.BranchName.ToLower().Contains(branch)).ToList();
             return list;
         }
     }
