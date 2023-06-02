@@ -15,6 +15,7 @@ namespace PE_SU22_HCM
             InitializeComponent();
             _accountTypeServices = new AccountTypeServices();
             var listAcount = _accountTypeServices.GetAll();
+
             cbType.DisplayMember = "typeName";
             cbType.ValueMember = "typeId";
             cbType.DataSource = listAcount;
@@ -95,7 +96,6 @@ namespace PE_SU22_HCM
                 String name = txtName.Text;
                 String branch = txtBranch.Text;
                 DateTime date = dtpDate.Value;
-                String typeName = cbType.Text;
 
                 if (!Utils.isEmpty(id) && !Utils.isEmpty(name) && !Utils.isEmpty(branch))
                 {
@@ -180,21 +180,21 @@ namespace PE_SU22_HCM
         {
             string branch = txtSearch.Text;
             resetState();
-            if (!string.IsNullOrWhiteSpace(branch))
+
+
+            _accountTypeServices = new AccountTypeServices();
+
+            _bankAccountService = new BankAccountServices();
+            _listAccounts = _bankAccountService.GetAccountByBranch(branch)
+            .Select(p =>
             {
-                _accountTypeServices = new AccountTypeServices();
+                p.Type = _accountTypeServices.GetAll().FirstOrDefault(t => t.TypeId == p.TypeId);
+                return p;
+            })
+            .ToList();
 
-                _bankAccountService = new BankAccountServices();
-                _listAccounts = _bankAccountService.GetAccountByBranch(branch)
-                .Select(p =>
-                {
-                    p.Type = _accountTypeServices.GetAll().FirstOrDefault(t => t.TypeId == p.TypeId);
-                    return p;
-                })
-                .ToList();
+            dgvListAccount.DataSource = new BindingSource { DataSource = _listAccounts };
 
-                dgvListAccount.DataSource = new BindingSource { DataSource = _listAccounts };
-            }
         }
     }
 }
